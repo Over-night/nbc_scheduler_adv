@@ -1,4 +1,4 @@
-package com.example.advanceschedular;
+package com.advanceschedular;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

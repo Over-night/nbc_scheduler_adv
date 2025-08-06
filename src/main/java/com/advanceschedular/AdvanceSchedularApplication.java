@@ -1,4 +1,4 @@
-package com.example.advanceschedular;
+package com.advanceschedular;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
