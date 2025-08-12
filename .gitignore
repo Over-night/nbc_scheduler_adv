@@ -1,6 +1,7 @@
 ### Custom ###
 !**/src/main/resources/application.properties
 !**/src/main/resources/application.yml
+.env
 ##############
 
 HELP.md
