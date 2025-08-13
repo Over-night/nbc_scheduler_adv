@@ -26,9 +26,9 @@ public class CommentController {
         return ResponseEntity.ok(allComments);
     }
 
-    @GetMapping("/member/{memberUUID}")
-    public ResponseEntity<List<CommentResponse>> getCommentsByMemberUUID(@PathVariable UUID memberUUID) {
-        List<CommentResponse> commentsByUUID = commentService.getCommentsByMemberUUID(memberUUID);
-        return ResponseEntity.ok(commentsByUUID);
+    @GetMapping("/{commentId}")
+    public ResponseEntity<CommentResponse> getCommentById(@PathVariable Long commentId) {
+        CommentResponse commentById = commentService.getCommentById(commentId);
+        return ResponseEntity.ok(commentById);
     }
 }
