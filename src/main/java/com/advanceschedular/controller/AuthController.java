@@ -4,7 +4,7 @@ import com.advanceschedular.dto.member.MemberSignInRequest;
 import com.advanceschedular.dto.member.MemberSignUpRequest;
 import com.advanceschedular.dto.member.MemberSignUpResponse;
 import com.advanceschedular.model.Member;
-import com.advanceschedular.service.MemberService;
+import com.advanceschedular.service.AuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
@@ -22,11 +22,11 @@ import java.util.UUID;
 @RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
 public class AuthController {
-    private final MemberService memberService;
+    private final AuthService authService;
 
     @PostMapping("/signup")
     public ResponseEntity<MemberSignUpResponse> signUp(@Valid @RequestBody MemberSignUpRequest memberSignUpRequest) {
-        UUID id = memberService.signUpMember(memberSignUpRequest);
+        UUID id = authService.signUpMember(memberSignUpRequest);
         MemberSignUpResponse memberSignUpResponse =
                 MemberSignUpResponse.created(id, memberSignUpRequest.getNickname()
         );
@@ -38,7 +38,7 @@ public class AuthController {
     @PostMapping("/signin")
     public ResponseEntity<String> signIn(HttpServletRequest request,
                                          @Valid @RequestBody MemberSignInRequest memberSignInRequest) {
-        Member member = memberService.signInMember(memberSignInRequest);
+        Member member = authService.signInMember(memberSignInRequest);
 
         HttpSession session = request.getSession(); // 신규 세션 생성, JSESSIONID 쿠키 발급
         session.setAttribute("LOGIN_USER", member.getId());

@@ -134,10 +134,4 @@ public class ScheduleController {
         CommentDeleteResponse response = commentService.deleteComment(commentId, memberUUID);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
-
-    @GetMapping("/member/{memberUUID}")
-    public ResponseEntity<List<ScheduleElementResponse>> getSchedulesByUsername(@PathVariable UUID memberUUID) {
-        List<ScheduleElementResponse> schedulesByUUID = scheduleService.getSchedulesByUUID(memberUUID);
-        return ResponseEntity.ok(schedulesByUUID);
-    }
 }
