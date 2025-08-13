@@ -9,6 +9,11 @@ spring:
     import: optional:file:.env[.properties]
   application:
     name: schedule_manager
+  data:
+    web:
+      pageable:
+        default-page-size: 10
+        max-page-size: 100
   datasource:
     url: ${DB_URL}
     username: ${DB_USERNAME}

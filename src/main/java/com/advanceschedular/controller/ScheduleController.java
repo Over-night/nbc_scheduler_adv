@@ -1,5 +1,6 @@
 package com.advanceschedular.controller;
 
+import com.advanceschedular.common.dto.PageResponse;
 import com.advanceschedular.common.enums.ErrorCode;
 import com.advanceschedular.common.exception.CustomException;
 import com.advanceschedular.dto.comment.*;
@@ -9,6 +10,10 @@ import com.advanceschedular.service.ScheduleService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -26,9 +31,12 @@ public class ScheduleController {
     private final CommentService commentService;
 
     @GetMapping
-    public ResponseEntity<List<ScheduleElementResponse>> getAllSchedules() {
-        List<ScheduleElementResponse> allSchedules = scheduleService.getAllSchedules();
-        return ResponseEntity.ok(allSchedules);
+    public ResponseEntity<PageResponse<ScheduleElementResponse>> getAllSchedules(
+            @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC)
+            Pageable pageable
+    ) {
+        Page<ScheduleElementResponse> page = scheduleService.getAllSchedules(pageable);
+        return ResponseEntity.ok(PageResponse.of(page));
     }
 
     @PostMapping

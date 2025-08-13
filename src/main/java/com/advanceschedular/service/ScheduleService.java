@@ -9,6 +9,8 @@ import com.advanceschedular.model.Schedule;
 import com.advanceschedular.repository.MemberRepository;
 import com.advanceschedular.repository.ScheduleRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -129,18 +131,13 @@ public class ScheduleService {
                 .collect(Collectors.toList());
     }
 
-    public List<ScheduleElementResponse> getAllSchedules() {
-        return scheduleRepository.findAll()
-                .stream()
-                .filter(schedule -> !schedule.isDeleted())
-                .map(this::makeScheduleElementResponse)
-                .collect(Collectors.toList());
+    public Page<ScheduleElementResponse> getAllSchedules(Pageable pageable) {
+        return scheduleRepository.findAllByDeletedAtIsNull(pageable)
+                .map(this::makeScheduleElementResponse);
     }
 
-    public List<ScheduleElementResponse> getAllSchedulesIncludingDeleted() {
-        return scheduleRepository.findAll()
-                .stream()
-                .map(this::makeScheduleElementResponse)
-                .collect(Collectors.toList());
+    public Page<ScheduleElementResponse> getAllSchedulesIncludingDeleted(Pageable pageable) {
+        return scheduleRepository.findAll(pageable)
+                .map(this::makeScheduleElementResponse);
     }
 }
