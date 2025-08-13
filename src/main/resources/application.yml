@@ -1,4 +1,10 @@
 spring:
+  servlet:
+    session:
+      cookie:
+        http-only: true
+        secure: true   # HTTPS일 때
+        same-site: Lax
   config:
     import: optional:file:.env[.properties]
   application:
@@ -13,6 +19,8 @@ spring:
       ddl-auto: update
     properties:
       hibernate:
+        type:
+          preferred_uuid_jdbc_type: BINARY
         dialect: org.hibernate.dialect.MariaDBDialect
         show_sql: true
         format_sql: true

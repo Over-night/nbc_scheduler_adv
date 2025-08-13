@@ -2,10 +2,10 @@ package com.advanceschedular.common.exception;
 
 import com.advanceschedular.common.enums.ErrorCode;
 
-public class BaseException extends RuntimeException {
+public class CustomException extends RuntimeException {
     private final ErrorCode errorCode;
 
-    public BaseException(ErrorCode errorCode) {
+    public CustomException(ErrorCode errorCode) {
         super(errorCode.getMessage());
         this.errorCode = errorCode;
     }
