@@ -22,9 +22,9 @@ public class MemberService {
     @Transactional
     public UUID signUpMember(MemberSignUpRequest memberSignUpRequest) {
         if (memberRepository.existsByUsername(memberSignUpRequest.getUsername()))
-            throw new CustomException(ErrorCode.DUPLICATE_USERNAME);
+            throw new CustomException(ErrorCode.USR_DUPLICATE_ID);
         if (memberRepository.existsByEmail(memberSignUpRequest.getEmail()))
-            throw new CustomException(ErrorCode.DUPLICATE_EMAIL);
+            throw new CustomException(ErrorCode.USR_DUPLICATE_EMAIL);
 
         String encodedPassword = PasswordUtil.encode(memberSignUpRequest.getPassword());
 
@@ -45,7 +45,7 @@ public class MemberService {
         Optional<Member> member = memberRepository.findByUsername(memberSignInRequest.getUsername());
         if (member.isEmpty() ||
                 !PasswordUtil.matches(memberSignInRequest.getPassword(), member.get().getPassword())) {
-            throw new CustomException(ErrorCode.WRONG_LOGIN_INFO);
+            throw new CustomException(ErrorCode.USR_WRONG_LOGIN_INFO);
         }
 
         return member.get();

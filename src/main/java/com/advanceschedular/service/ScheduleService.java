@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class ScheduleService {
     private final MemberRepository memberRepository;
     private final ScheduleRepository scheduleRepository;
@@ -30,10 +31,19 @@ public class ScheduleService {
         );
     }
 
+    private Member getMember(UUID id) {
+        return memberRepository.findById(id)
+                .orElseThrow(() -> new CustomException(ErrorCode.SCH_INVALID_WRITER));
+    }
+
+    private Schedule getSchedule(Long id) {
+        return scheduleRepository.findById(id)
+                .orElseThrow(() -> new CustomException(ErrorCode.SCH_INVALID_SCHEDULE));
+    }
+
     @Transactional
     public ScheduleUploadResponse uploadSchedule(UUID memberId, ScheduleUploadRequest dto) {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(ErrorCode.INVALID_WRITER));
+        Member member = getMember(memberId);
 
         Schedule schedule = Schedule.builder().
                 member(member).
@@ -48,16 +58,14 @@ public class ScheduleService {
 
     @Transactional
     public ScheduleReviseResponse reviseSchedule(Long scheduleId, UUID memberId, ScheduleReviseRequest dto) {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(ErrorCode.INVALID_WRITER));
-        Schedule schedule = scheduleRepository.findById(scheduleId)
-                .orElseThrow(() -> new CustomException(ErrorCode.INVALID_SCHEDULE));
+        Member member = getMember(memberId);
+        Schedule schedule = getSchedule(scheduleId);
 
         if (schedule.isDeleted()) {
-            throw new CustomException(ErrorCode.ALREADY_DELETED);
+            throw new CustomException(ErrorCode.SCH_ALREADY_DELETED);
         }
         if (!schedule.getMember().getId().equals(member.getId())) {
-            throw new CustomException(ErrorCode.NO_AUTHORITY_TO_REVISE);
+            throw new CustomException(ErrorCode.SCH_NO_AUTHORITY_TO_REVISE);
         }
 
         schedule.update(dto.getTitle(), dto.getContent());
@@ -67,17 +75,14 @@ public class ScheduleService {
 
     @Transactional
     public ScheduleDeleteResponse deleteSchedule(Long scheduleId, UUID memberId) {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(ErrorCode.INVALID_WRITER));
-        Schedule schedule = scheduleRepository.findById(scheduleId)
-                .orElseThrow(() -> new CustomException(ErrorCode.INVALID_SCHEDULE));
+        Member member = getMember(memberId);
+        Schedule schedule = getSchedule(scheduleId);
 
-        // 현재는 작성자만 사용가능
         if (schedule.isDeleted()) {
-            throw new CustomException(ErrorCode.ALREADY_DELETED);
+            throw new CustomException(ErrorCode.SCH_ALREADY_DELETED);
         }
         if (!schedule.getMember().getId().equals(member.getId())) {
-            throw new CustomException(ErrorCode.NO_AUTHORITY_TO_DELETE);
+            throw new CustomException(ErrorCode.SCH_NO_AUTHORITY_TO_DELETE);
         }
 
         schedule.delete();
@@ -85,13 +90,8 @@ public class ScheduleService {
         return ScheduleDeleteResponse.of(scheduleId);
     }
 
-    @Transactional(readOnly = true)
     public ScheduleDetailResponse getScheduleDetail(Long id) {
-        Schedule schedule = scheduleRepository.findById(id)
-                .orElseThrow(() -> new CustomException(ErrorCode.INVALID_SCHEDULE));
-        if(schedule.isDeleted()) {
-            throw new CustomException(ErrorCode.ALREADY_DELETED);
-        }
+        Schedule schedule = getSchedule(id);
 
         List<CommentResponse> comments = schedule.getComments().stream()
                 .map(comment -> CommentResponse.of(
@@ -108,10 +108,9 @@ public class ScheduleService {
         );
     }
 
-    @Transactional(readOnly = true)
-    public List<ScheduleElementResponse> getScheduleByUUID(UUID id) {
+    public List<ScheduleElementResponse> getSchedulesByUUID(UUID id) {
         Member owner = memberRepository.findById(id)
-                .orElseThrow(() -> new CustomException(ErrorCode.INVALID_USER_UUID));
+                .orElseThrow(() -> new CustomException(ErrorCode.USR_INVALID_USER_UUID));
 
         return scheduleRepository.findByMember(owner)
                 .stream()
@@ -120,10 +119,9 @@ public class ScheduleService {
                 .collect(Collectors.toList());
     }
 
-    @Transactional(readOnly = true)
-    public List<ScheduleElementResponse> getScheduleByUUIDIncludingDeleted(UUID id) {
+    public List<ScheduleElementResponse> getSchedulesByUUIDIncludingDeleted(UUID id) {
         Member owner = memberRepository.findById(id)
-                .orElseThrow(() -> new CustomException(ErrorCode.INVALID_USER_UUID));
+                .orElseThrow(() -> new CustomException(ErrorCode.USR_INVALID_USER_UUID));
 
         return scheduleRepository.findByMember(owner)
                 .stream()
@@ -131,8 +129,7 @@ public class ScheduleService {
                 .collect(Collectors.toList());
     }
 
-    @Transactional(readOnly = true)
-    public List<ScheduleElementResponse> findAll() {
+    public List<ScheduleElementResponse> getAllSchedules() {
         return scheduleRepository.findAll()
                 .stream()
                 .filter(schedule -> !schedule.isDeleted())
@@ -140,8 +137,7 @@ public class ScheduleService {
                 .collect(Collectors.toList());
     }
 
-    @Transactional(readOnly = true)
-    public List<ScheduleElementResponse> findAllIncludingDeleted() {
+    public List<ScheduleElementResponse> getAllSchedulesIncludingDeleted() {
         return scheduleRepository.findAll()
                 .stream()
                 .map(this::makeScheduleElementResponse)
