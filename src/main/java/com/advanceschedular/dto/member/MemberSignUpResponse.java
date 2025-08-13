@@ -1,19 +1,12 @@
-package com.advanceschedular.dto;
+package com.advanceschedular.dto.member;
 
 import lombok.Builder;
-import lombok.Getter;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.UUID;
 
-@Getter
 @Builder
-public class MemberSignUpResponse {
-    private final UUID id;
-    private final String nickname;
-    private final Instant createdAt;
-
+public record MemberSignUpResponse(UUID id, String nickname, Instant createdAt) {
     public static MemberSignUpResponse created(UUID id, String nickname) {
         return MemberSignUpResponse.builder()
                 .id(id)

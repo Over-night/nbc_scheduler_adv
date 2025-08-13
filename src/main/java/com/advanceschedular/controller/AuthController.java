@@ -1,8 +1,8 @@
 package com.advanceschedular.controller;
 
-import com.advanceschedular.dto.MemberSignInRequest;
-import com.advanceschedular.dto.MemberSignUpRequest;
-import com.advanceschedular.dto.MemberSignUpResponse;
+import com.advanceschedular.dto.member.MemberSignInRequest;
+import com.advanceschedular.dto.member.MemberSignUpRequest;
+import com.advanceschedular.dto.member.MemberSignUpResponse;
 import com.advanceschedular.model.Member;
 import com.advanceschedular.service.MemberService;
 import jakarta.servlet.http.HttpServletRequest;
