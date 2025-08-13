@@ -52,7 +52,7 @@ public class ScheduleController {
     public ResponseEntity<ScheduleDetailResponse> getScheduleById(@PathVariable Long scheduleId) {
         ScheduleDetailResponse response = scheduleService.getScheduleDetail(scheduleId);
 
-        return ResponseEntity.ok(response);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @PostMapping("/{scheduleId}")
@@ -116,7 +116,7 @@ public class ScheduleController {
 
         CommentReviseResponse response = commentService.reviseComment(commentId, memberUUID, dto);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @DeleteMapping("/{scheduleId}/comments/{commentId}")
@@ -132,6 +132,6 @@ public class ScheduleController {
         }
 
         CommentDeleteResponse response = commentService.deleteComment(commentId, memberUUID);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 }
