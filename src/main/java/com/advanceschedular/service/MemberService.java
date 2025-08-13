@@ -1,53 +1,42 @@
 package com.advanceschedular.service;
 
+
 import com.advanceschedular.common.enums.ErrorCode;
 import com.advanceschedular.common.exception.CustomException;
-import com.advanceschedular.common.util.PasswordUtil;
-import com.advanceschedular.dto.MemberSignInRequest;
-import com.advanceschedular.dto.MemberSignUpRequest;
+import com.advanceschedular.dto.member.MemberResponse;
 import com.advanceschedular.model.Member;
 import com.advanceschedular.repository.MemberRepository;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class MemberService {
     private final MemberRepository memberRepository;
 
-    @Transactional
-    public UUID signUpMember(MemberSignUpRequest memberSignUpRequest) {
-        if (memberRepository.existsByUsername(memberSignUpRequest.getUsername()))
-            throw new CustomException(ErrorCode.DUPLICATE_USERNAME);
-        if (memberRepository.existsByEmail(memberSignUpRequest.getEmail()))
-            throw new CustomException(ErrorCode.DUPLICATE_EMAIL);
+    private MemberResponse makeMemberResponse(Member member) {
+        return MemberResponse.of(member.getId(), member.getUsername(), member.getNickname(), member.getEmail(),
+                member.getCreatedAt(), member.getUpdatedAt());
+    };
 
-        String encodedPassword = PasswordUtil.encode(memberSignUpRequest.getPassword());
+    public MemberResponse getMemberByUUID(UUID id) {
+        Member member = memberRepository.findById(id)
+                .orElseThrow(() -> new CustomException(ErrorCode.USR_INVALID_USER_UUID));
 
-        Member member = Member.builder().
-                username(memberSignUpRequest.getUsername()).
-                password(encodedPassword).
-                nickname(memberSignUpRequest.getNickname()).
-                email(memberSignUpRequest.getEmail()).
-                build();
-
-        memberRepository.save(member);
-
-        return member.getId();
+        return makeMemberResponse(member);
     }
 
-    @Transactional
-    public Member signInMember(MemberSignInRequest memberSignInRequest) {
-        Optional<Member> member = memberRepository.findByUsername(memberSignInRequest.getUsername());
-        if (member.isEmpty() ||
-                !PasswordUtil.matches(memberSignInRequest.getPassword(), member.get().getPassword())) {
-            throw new CustomException(ErrorCode.WRONG_LOGIN_INFO);
-        }
-
-        return member.get();
+    public List<MemberResponse> getAllMembers() {
+        return memberRepository.findAll()
+                .stream()
+                .filter(member -> !member.isDeleted())
+                .map(this::makeMemberResponse)
+                .collect(Collectors.toList());
     }
 }
